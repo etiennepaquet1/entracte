@@ -3,11 +3,11 @@ steps:
     args:
       - build
       - -t
-      - http://northamerica-northeast1-docker.pkg.dev/silken-slice-514503-i4/entracte
+      - northamerica-northeast1-docker.pkg.dev/silken-slice-514503-i4/entracte/entracte:$SHORT_SHA
       - .
 
 images:
-  - http://northamerica-northeast1-docker.pkg.dev/silken-slice-514503-i4/entracte
+  - northamerica-northeast1-docker.pkg.dev/silken-slice-514503-i4/entracte/entracte:$SHORT_SHA
 
 options:
   logging: CLOUD_LOGGING_ONLY
