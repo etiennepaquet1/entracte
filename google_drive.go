@@ -9,7 +9,7 @@ import (
 	"google.golang.org/api/option"
 )
 
-const googleDriveFolderID = "1Z4OEP9Y9_0R4nTIX0qQD8PzzONrBSIbF"
+const googleDriveFolderID = "0AKrCEzG1G3IYUk9PVA"
 
 func UploadReportToGoogleDrive(ctx context.Context, filename string, content []byte) (string, error) {
 	service, err := drive.NewService(ctx, option.WithScopes(drive.DriveScope))
@@ -24,6 +24,7 @@ func UploadReportToGoogleDrive(ctx context.Context, filename string, content []b
 	}
 	uploaded, err := service.Files.Create(file).
 		Media(bytes.NewReader(content)).
+		SupportsAllDrives(true).
 		Fields("id").
 		Do()
 	if err != nil {
