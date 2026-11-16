@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"fmt"
 	"math"
 	"time"
@@ -8,7 +9,7 @@ import (
 	"github.com/phpdave11/gofpdf"
 )
 
-func GenerateSalesReportPDF(filename string, campaign Campaign, salesByType map[string]TicketTypeSales) error {
+func GenerateSalesReportPDF(campaign Campaign, salesByType map[string]TicketTypeSales) ([]byte, error) {
 	pdf := gofpdf.New("P", "mm", "A4", "")
 	pdf.SetMargins(20, 18, 20)
 	pdf.SetAutoPageBreak(true, 18)
@@ -79,8 +80,9 @@ func GenerateSalesReportPDF(filename string, campaign Campaign, salesByType map[
 	writeParagraph("Merci d’avoir été des nôtres, et au plaisir de vous recevoir de nouveau. À très bientôt!")
 	writeParagraph("Chaleureusement,\nL'équipe de L'Entracte")
 
-	if err := pdf.OutputFileAndClose(filename); err != nil {
-		return fmt.Errorf("write sales report PDF %q: %w", filename, err)
+	var output bytes.Buffer
+	if err := pdf.Output(&output); err != nil {
+		return nil, fmt.Errorf("generate sales report PDF: %w", err)
 	}
-	return nil
+	return output.Bytes(), nil
 }

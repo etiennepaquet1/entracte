@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"testing"
 	"time"
 )
@@ -40,5 +41,15 @@ func TestGetMostRecentlyEndedCampaignNoneEnded(t *testing.T) {
 	_, err := GetMostRecentlyEndedCampaign([]Campaign{{ID: "upcoming", EndDate: time.Now().Unix() + 100}})
 	if err == nil {
 		t.Fatal("GetMostRecentlyEndedCampaign() expected an error when no campaign has ended")
+	}
+}
+
+func TestGenerateSalesReportPDF(t *testing.T) {
+	report, err := GenerateSalesReportPDF(Campaign{Title: "Test show"}, map[string]TicketTypeSales{})
+	if err != nil {
+		t.Fatalf("GenerateSalesReportPDF() error = %v", err)
+	}
+	if !bytes.HasPrefix(report, []byte("%PDF-")) {
+		t.Fatalf("GenerateSalesReportPDF() did not return PDF data")
 	}
 }

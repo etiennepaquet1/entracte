@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"strings"
@@ -81,6 +82,20 @@ func main() {
 	for ticketType, sales := range salesByType {
 		fmt.Printf("%s: %d tickets sold, $%.2f net revenue\n", ticketType, sales.TicketsSold, float64(sales.NetRevenue)/100)
 	}
+
+	report, err := GenerateSalesReportPDF(mostRecentCampaign, salesByType)
+	if err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		os.Exit(1)
+	}
+
+	filename := fmt.Sprintf("Sales report - %s - %s.pdf", mostRecentCampaign.Title, time.Now().Format("2006-01-02 15-04-05"))
+	fileID, err := UploadReportToGoogleDrive(context.Background(), filename, report)
+	if err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		os.Exit(1)
+	}
+	fmt.Printf("Uploaded sales report to Google Drive: https://drive.google.com/file/d/%s/view\n", fileID)
 }
 
 func normalizeTicketType(ticketType string) string {
