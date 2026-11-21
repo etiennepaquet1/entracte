@@ -2,6 +2,8 @@ package main
 
 import (
 	"context"
+	"encoding/json"
+	"flag"
 	"fmt"
 	"os"
 	"strings"
@@ -14,10 +16,25 @@ import (
 const doorString = "door"
 
 func main() {
+	writePayments := flag.Bool("payments", false, "write payments to payments.json and exit")
+	flag.Parse()
 
 	if err := LoadConfig(); err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
+	}
+
+	if *writePayments {
+		payments, err := GetPayments()
+		if err != nil {
+			fmt.Fprintln(os.Stderr, err)
+			os.Exit(1)
+		}
+		if err := writePaymentsJSON(payments); err != nil {
+			fmt.Fprintln(os.Stderr, err)
+			os.Exit(1)
+		}
+		return
 	}
 
 	campaigns, err := GetCampaigns()
@@ -96,6 +113,21 @@ func main() {
 		os.Exit(1)
 	}
 	fmt.Printf("Uploaded sales report to Google Drive: https://drive.google.com/file/d/%s/view\n", fileID)
+}
+
+func writePaymentsJSON(payments []Payment) error {
+	if payments == nil {
+		payments = []Payment{}
+	}
+	data, err := json.MarshalIndent(payments, "", "  ")
+	if err != nil {
+		return fmt.Errorf("marshal payments: %w", err)
+	}
+	data = append(data, '\n')
+	if err := os.WriteFile("payments.json", data, 0644); err != nil {
+		return fmt.Errorf("write payments.json: %w", err)
+	}
+	return nil
 }
 
 func normalizeTicketType(ticketType string) string {
